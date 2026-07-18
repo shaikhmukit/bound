@@ -1,0 +1,148 @@
+:root {
+  --ink: #10231f;
+  --forest: #173b31;
+  --moss: #2e6452;
+  --lime: #b4e600;
+  --cream: #f6f5ee;
+  --paper: #fffefa;
+  --muted: #61726b;
+  --line: #dce4db;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+html {
+  scroll-behavior: smooth;
+}
+
+body {
+  margin: 0;
+  background: var(--cream);
+  color: var(--ink);
+  font-family: Arial, sans-serif;
+  line-height: 1.65;
+}
+
+.shell {
+  width: min(900px, calc(100% - 44px));
+  margin: auto;
+}
+
+a {
+  color: var(--moss);
+}
+
+header {
+  background: var(--forest);
+  color: #fff;
+}
+
+.nav {
+  min-height: 74px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 20px;
+}
+
+.brand {
+  width: 210px;
+  height: 54px;
+  background: #fff url('../assets/logo.png') center/contain no-repeat;
+  border-radius: 3px;
+  text-indent: -9999px;
+}
+
+.back {
+  color: var(--lime);
+  font-size: .84rem;
+  font-weight: 700;
+  text-decoration: none;
+}
+
+.intro {
+  padding: 65px 0 42px;
+  border-bottom: 1px solid var(--line);
+}
+
+.eyebrow {
+  font: 500 .72rem/1 monospace;
+  letter-spacing: .12em;
+  text-transform: uppercase;
+  color: var(--moss);
+}
+
+h1 {
+  font-size: clamp(2.7rem, 5vw, 4.7rem);
+  line-height: 1;
+  margin: 13px 0;
+  letter-spacing: -.07em;
+}
+
+h2 {
+  font-size: clamp(1.65rem, 3vw, 2.25rem);
+  line-height: 1.15;
+  letter-spacing: -.045em;
+  margin: 8px 0;
+}
+
+.note {
+  margin-top: 28px;
+  padding: 16px 18px;
+  border-left: 4px solid var(--moss);
+  border-radius: 8px;
+  background: #d8e8de;
+  color: #40564e;
+  font-size: .88rem;
+}
+
+.index {
+  columns: 2;
+  margin: 34px 0;
+  padding: 24px 28px;
+  background: var(--paper);
+  border: 1px solid var(--line);
+  border-radius: 16px;
+}
+
+.index li {
+  padding: 4px;
+  font-size: .88rem;
+}
+
+article {
+  padding: 40px 0;
+  border-top: 1px solid var(--line);
+  scroll-margin-top: 20px;
+}
+
+article p {
+  margin: 8px 0;
+  color: #40564e;
+}
+
+.updated {
+  font: 500 .7rem monospace;
+  color: var(--muted);
+  letter-spacing: .05em;
+}
+
+footer {
+  padding: 28px 0;
+  background: #0d211b;
+  color: #b3c5bc;
+  font-size: .78rem;
+}
+
+@media(max-width: 560px) {
+  .index {
+    columns: 1;
+  }
+  .nav {
+    flex-direction: column;
+    align-items: flex-start;
+    padding: 18px 0;
+  }
+}
