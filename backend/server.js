@@ -1,102 +1,96 @@
 const express = require('express');
 const nodemailer = require('nodemailer');
 const cors = require('cors');
+const path = require('path');
 require('dotenv').config();
 
 const app = express();
 const PORT = process.env.PORT || 5000;
 
-// Enable CORS for frontend requests
+// Enable CORS
 app.use(cors());
 
-// Parse incoming request body
+// Parse request body
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
-// Health check endpoint
-app.get('/health', (req, res) => {
-  res.status(200).json({ status: 'OK', message: 'Mail server is healthy and running.' });
+// Serve frontend files
+app.use(express.static(path.join(__dirname, "../frontend")));
+
+// Serve assets folder
+app.use("/assets", express.static(path.join(__dirname, "../assets")));
+
+// Home page
+app.get("/", (req, res) => {
+  res.sendFile(path.join(__dirname, "../frontend", "index.html"));
 });
 
-// API Contact Route
+// Health check
+app.get('/health', (req, res) => {
+  res.status(200).json({
+    status: 'OK',
+    message: 'Mail server is healthy and running.'
+  });
+});
+
+// Contact API
 app.post('/api/contact', async (req, res) => {
   const { name, email, phone, company, service, message } = req.body;
 
-  // Form Validation
   if (!name || !email || !service || !message) {
-    return res.status(400).json({ 
-      error: 'Please fill in all required fields (Name, Email, Service, and Message).' 
+    return res.status(400).json({
+      error: 'Please fill in all required fields (Name, Email, Service, and Message).'
     });
   }
 
   try {
-    // Nodemailer transport settings
     const transporter = nodemailer.createTransport({
       host: process.env.SMTP_HOST || 'smtp.gmail.com',
       port: parseInt(process.env.SMTP_PORT || '587'),
-      secure: process.env.SMTP_SECURE === 'true', 
+      secure: process.env.SMTP_SECURE === 'true',
       auth: {
         user: process.env.SMTP_USER,
-        pass: process.env.SMTP_PASS,
-      },
+        pass: process.env.SMTP_PASS
+      }
     });
 
-    // Design email template
     const mailOptions = {
-      from: `"${name}" <${process.env.SMTP_USER}>`, 
+      from: `"${name}" <${process.env.SMTP_USER}>`,
       replyTo: email,
-      to: process.env.CONTACT_RECEIVER || 'mukitshaikh2@gmail.com',
+      to: process.env.CONTACT_RECEIVER,
       subject: `New B2B Growth Lead: ${company || name}`,
       html: `
-        <div style="font-family: Arial, sans-serif; line-height: 1.6; max-width: 600px; margin: auto; padding: 20px; border: 1px solid #dce4db; border-radius: 12px; background-color: #fffefa;">
-          <h2 style="color: #173b31; border-bottom: 2px solid #b4e600; padding-bottom: 8px;">New Boundless enquiry</h2>
-          <p>You have received a new contact submission from your B2B growth landing page.</p>
-          
-          <table style="width: 100%; border-collapse: collapse; margin-top: 15px;">
-            <tr>
-              <td style="padding: 10px; border-bottom: 1px solid #dce4db; font-weight: bold; width: 30%; color: #2e6452;">Full Name</td>
-              <td style="padding: 10px; border-bottom: 1px solid #dce4db; color: #10231f;">${name}</td>
-            </tr>
-            <tr>
-              <td style="padding: 10px; border-bottom: 1px solid #dce4db; font-weight: bold; color: #2e6452;">Email Address</td>
-              <td style="padding: 10px; border-bottom: 1px solid #dce4db; color: #10231f;"><a href="mailto:${email}" style="color: #2e6452; text-decoration: none; font-weight: bold;">${email}</a></td>
-            </tr>
-            <tr>
-              <td style="padding: 10px; border-bottom: 1px solid #dce4db; font-weight: bold; color: #2e6452;">Phone Number</td>
-              <td style="padding: 10px; border-bottom: 1px solid #dce4db; color: #10231f;">${phone || 'Not provided'}</td>
-            </tr>
-            <tr>
-              <td style="padding: 10px; border-bottom: 1px solid #dce4db; font-weight: bold; color: #2e6452;">Company Name</td>
-              <td style="padding: 10px; border-bottom: 1px solid #dce4db; color: #10231f;">${company || 'Not provided'}</td>
-            </tr>
-            <tr>
-              <td style="padding: 10px; border-bottom: 1px solid #dce4db; font-weight: bold; color: #2e6452;">Requested Service</td>
-              <td style="padding: 10px; border-bottom: 1px solid #dce4db; color: #10231f; font-weight: bold;">${service}</td>
-            </tr>
-            <tr>
-              <td style="padding: 10px; font-weight: bold; color: #2e6452; vertical-align: top;">Message Details</td>
-              <td style="padding: 10px; color: #10231f; white-space: pre-wrap;">${message}</td>
-            </tr>
-          </table>
-          
-          <div style="margin-top: 30px; font-size: 0.8rem; color: #61726b; text-align: center; border-top: 1px solid #dce4db; padding-top: 12px;">
-            Enquiry routed via Boundless B2B Growth Lead Server.
-          </div>
+        <div style="font-family:Arial,sans-serif;padding:20px">
+          <h2>New Boundless Enquiry</h2>
+
+          <p><b>Name:</b> ${name}</p>
+          <p><b>Email:</b> ${email}</p>
+          <p><b>Phone:</b> ${phone || 'Not provided'}</p>
+          <p><b>Company:</b> ${company || 'Not provided'}</p>
+          <p><b>Service:</b> ${service}</p>
+          <p><b>Message:</b></p>
+
+          <p>${message}</p>
         </div>
-      `,
+      `
     };
 
-    // Send the email
-    const info = await transporter.sendMail(mailOptions);
-    console.log('Enquiry email sent successfully: %s', info.messageId);
+    await transporter.sendMail(mailOptions);
 
-    return res.status(200).json({ success: true, message: 'Your enquiry has been sent successfully.' });
-  } catch (error) {
-    console.error('Error sending contact email:', error);
-    return res.status(500).json({ error: 'Failed to deliver the email. Please check server SMTP configuration.' });
+    res.json({
+      success: true,
+      message: 'Your enquiry has been sent successfully.'
+    });
+
+  } catch (err) {
+    console.error(err);
+
+    res.status(500).json({
+      error: 'Failed to send email.'
+    });
   }
 });
 
 app.listen(PORT, () => {
-  console.log(`Boundless B2B Growth Server running on http://localhost:${PORT}`);
+  console.log(`Server running on port ${PORT}`);
 });
