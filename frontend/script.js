@@ -114,7 +114,7 @@ document.addEventListener('DOMContentLoaded', () => {
   const successDialog = document.querySelector('#success-dialog');
 
   if (form && statusMsg && submitBtn) {
-    form.action = 'http://localhost:5000/api/contact';
+    form.action = '/api/contact';
     form.addEventListener('submit', async (e) => {
       e.preventDefault();
       statusMsg.className = 'form-status';
