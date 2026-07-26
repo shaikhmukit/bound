@@ -81,7 +81,13 @@ document.addEventListener('DOMContentLoaded', () => {
     'Marketing Qualified Leads': 'Deliver verified prospects who have demonstrated meaningful engagement and match your ideal customer profile.\n\nEach lead is aligned with campaign objectives and qualification criteria.',
     'Sales Qualified Leads': 'Generate sales-ready opportunities validated through additional qualification processes, ensuring your sales team focuses on prospects with genuine buying potential.',
     'Appointment Setting': 'Enable your sales teams to spend more time selling while we identify, qualify, and schedule meetings with key decision-makers.',
-    'Telemarketing Services': 'Professional outbound calling programs focused on lead qualification, event promotion, customer engagement, appointment setting, and market research.'
+    'Telemarketing Services': 'Professional outbound calling programs focused on lead qualification, event promotion, customer engagement, appointment setting, and market research.',
+    'Data Solutions': 'Keep your CRM and marketing systems accurate and actionable with ongoing data enrichment, cleansing, verification, and segmentation.\n\nWe help you maintain a reliable, up-to-date foundation for every campaign.',
+    'Email Marketing': 'Targeted, permission-based email programs that nurture prospects through the buying journey and maximize conversion at every stage.\n\nCampaigns are built around segmentation, personalization, and performance tracking.',
+    'LinkedIn Demand Generation': 'Reach and engage decision-makers directly through personalized LinkedIn outreach and strategic relationship building.\n\nWe combine targeted messaging with content and social proof to build credibility and pipeline.',
+    'Digital Advertising': 'Integrated search, display, native, social, and programmatic campaigns designed to generate qualified demand across the channels your buyers use.\n\nEvery campaign is optimized against pipeline and revenue goals, not just clicks.',
+    'Lead Nurturing': 'Personalized, multi-touch communications that guide prospects from initial awareness through to purchase readiness.\n\nWe keep your brand top-of-mind until buyers are ready to engage sales.',
+    'Marketing Operations': 'End-to-end campaign execution, marketing automation, reporting, and optimization to keep every program running smoothly.\n\nWe handle the operational detail so your team can focus on strategy.'
   };
 
   if (serviceDialog && serviceTitle && serviceCopy) {
@@ -107,37 +113,30 @@ document.addEventListener('DOMContentLoaded', () => {
     });
   }
 
-  // Contact Form AJAX Submission (updated to point to backend Server)
+  // Contact Form AJAX Submission (via FormSubmit.co — no backend required)
   const form = document.querySelector('#contact-form');
   const statusMsg = document.querySelector('#form-status');
   const submitBtn = form ? form.querySelector('button[type="submit"]') : null;
   const successDialog = document.querySelector('#success-dialog');
 
   if (form && statusMsg && submitBtn) {
-    form.action = '/api/contact';
+    // Use whatever action is already set on the <form> in index.html
+    // (https://formsubmit.co/your-email) rather than a hardcoded backend URL.
     form.addEventListener('submit', async (e) => {
       e.preventDefault();
       statusMsg.className = 'form-status';
       statusMsg.textContent = 'Sending your enquiry...';
       submitBtn.disabled = true;
 
-      const formData = new FormData(form);
-      const data = {};
-      formData.forEach((value, key) => {
-        data[key] = value;
-      });
-
       try {
         const res = await fetch(form.action, {
           method: 'POST',
-          headers: { 
-            'Content-Type': 'application/json',
-            'Accept': 'application/json' 
+          headers: {
+            'Accept': 'application/json'
           },
-          body: JSON.stringify(data)
+          body: new FormData(form)
         });
         if (!res.ok) throw new Error('Request failed');
-        await res.json();
         form.reset();
         if (successDialog) {
           successDialog.showModal();
